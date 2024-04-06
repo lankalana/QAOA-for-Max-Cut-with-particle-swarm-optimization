@@ -1,5 +1,6 @@
 # QAOA for Max-Cut with particle swarm optimization
-Create the enviroment and install required packages
+The required python packages are in requirements.txt. They can be installed with
 ```
-python -m venv .\env\; .\env\Scripts\activate; pip install -r requirements.txt
+pip install -r requirements.txt
 ```
+More detailed explanations and examples can be found in the file [Example.ipynb](Example.ipynb).
