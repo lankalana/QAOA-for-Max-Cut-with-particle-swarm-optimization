@@ -78,7 +78,7 @@ class SwarmOptimizer:
                 self.bestGlobalVal = val
                 self.bestGlobalPos = np.copy(self.particlePos[i])
 
-    def Optimize(self, initialParams, N, iters, inertiaStart, inertiaEnd, C1, C2):
+    def Optimize(self, initialParams, iters, particles, inertiaStart, inertiaEnd, C1, C2):
         # Store linearly decreasing intertia values
         self.inertia = np.linspace(inertiaStart, inertiaEnd, iters)
         self.C1 = C1
