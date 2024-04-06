@@ -7,6 +7,7 @@ class QAOA:
         self.p = p
         self.shots = shots
         self.maxcut = instance
+        self.max_val = self.maxcut.ComputeBitstringVal(self.maxcut.BruteForce())
 
     # Define the QuantumFunc which simulates the quantum circuit and computes the expected value
     def QuantumFunc(self, params):
@@ -17,8 +18,24 @@ class QAOA:
         # Return the expected value
         return self.maxcut.ComputeAvgFromCounts(counts)
 
+    def ApproximationRatio(self, params, shots):
+        # Create the quantum circuit
+        qc = self.maxcut.CreateCircuit(params, self.p)
+        # Simulate it
+        result = self.simulator.run(qc, shots=shots).result().get_counts()
+        expextedVal = self.maxcut.ComputeAvgFromCounts(result)
+        return expextedVal / self.max_val
+    
+    def Top3Results(self, params, shots):
+        # Create the quantum circuit
+        qc = self.maxcut.CreateCircuit(params, self.p)
+        # Simulate it
+        result = self.simulator.run(qc, shots=shots).result().get_counts()
+        top3 = sorted(result.items(), key=lambda x: x[1], reverse=True)[:3]
+        return [x[0] for x in top3]
+
     # Plot the results for given params. Optionally compine dubpicates
-    def Plot(self, params, shots, skipInverse=False):
+    def Plot(self, params, shots):
         # Create the quantum circuit
         qc = self.maxcut.CreateCircuit(params, self.p)
         # Simulate it
@@ -26,29 +43,30 @@ class QAOA:
         labels = []
         counts = []
         values = []
-        max_val = 0
-        inverses = {}
+        colors = []
+
         # Sort and convert the data for easier plotting
-        if (len(result.items()) > 32):
-            print("Showing top 32 results")
-        for oneres in sorted(result.items(), key=lambda x: x[1], reverse=True)[:32]:
+        for oneres in sorted(result.items(), key=lambda x: x[1], reverse=True):
             val = self.maxcut.ComputeBitstringVal(oneres[0])
-            if (val > max_val):
-                max_val = val
-            invVal = ''.join('1' if x == '0' else '0' for x in oneres[0])
-            # Combine the counts for inverses, e.g. 0011 and 1100
-            if (skipInverse == True):
-                existing = inverses.get(invVal)
-                if (existing != None):
-                    counts[existing] += int(oneres[1])
-                    continue
-                inverses[oneres[0]] = len(labels)
             labels.append(oneres[0])
             counts.append(oneres[1] / shots)
             values.append(val)
-        # Print some key values
-        print("Approximation ratio: {ar:.2f}".format(ar=self.maxcut.ComputeAvgFromCounts(result) / max_val))
+
+            if (val == self.max_val):
+                colors.append("forestgreen")
+            elif (val == self.max_val - 1):
+                colors.append("orange")
+            else:
+                colors.append("red")
         # Plot the results
-        plt.bar(labels, counts, color=[("green" if x == max_val else ("orange" if x == max_val - 1 else "red")) for x in values])
+        if (len(result.items()) > 32):
+            print("Showing top 32 results")
+        plt.bar(labels[:32], counts[:32], color=colors)
         plt.xticks(rotation=90)
-        plt.show()
+        
+        colors = {"Correct solution":"forestgreen", "1 off the correct solution":"orange", "Other": "red"}         
+        labels = list(colors.keys())
+        handles = [plt.Rectangle((0,0),1,1, color=colors[label]) for label in labels]
+        plt.legend(handles, labels)
+        plt.xlabel("Solution bitstring")
+        plt.ylabel("Approximation ratio")
