@@ -106,3 +106,16 @@ class MaxCut:
                     sum += w * cnt
             totalCnt += cnt
         return sum / totalCnt
+    
+    def BruteForce(self):
+        formatString = "0" + str(self.nodeCnt) + "b"
+        max_val = 0
+        bestBits = ""
+        for i in range(2 ** self.nodeCnt):
+            bitstring = format(i, formatString)
+            val = self.ComputeBitstringVal(bitstring)
+            if (val > max_val):
+                max_val = val
+                bestBits = bitstring
+        return bestBits
+            
