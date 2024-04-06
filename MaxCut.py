@@ -1,5 +1,4 @@
 from qiskit import QuantumCircuit
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
@@ -71,7 +70,6 @@ class MaxCut:
         nx.draw_networkx(G, node_color=nodeColors, edge_color=edgeColors, node_size=600, alpha=0.8, pos=pos)
         if any([x[2] != 1 for x in self.edges]):
             nx.draw_networkx_edge_labels(G, pos=pos, edge_labels=nx.get_edge_attributes(G, "weight"))
-        plt.show()
 
     # Create the quantum circuit representation of the graph
     def CreateCircuit(self, params, p):
