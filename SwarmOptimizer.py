@@ -83,7 +83,7 @@ class SwarmOptimizer:
         self.inertia = np.linspace(inertiaStart, inertiaEnd, iters)
         self.C1 = C1
         self.C2 = C2
-        self.N = N
+        self.N = particles
         self.bestGlobalPos = initialParams
         # Initialize the swarm
         self.InitSwarm()
